@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barangay Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <div id="loginView" class="login-view">
+    <div class="login-panel">
+      <div class="brand-mark">B</div>
+      <p class="eyebrow">BARANGAY ADMINISTRATION</p>
+      <h1>Barangay Management System</h1>
+      <p class="muted">A centralized workspace for residents, households, businesses, certificates, complaints, and reports.</p>
+      <form id="loginForm" class="login-form">
+        <label>Email<input id="loginEmail" type="email" placeholder="admin@barangay.gov.ph" required></label>
+        <label>Password<input id="loginPassword" type="password" placeholder="••••••••" required></label>
+        <button class="btn btn-primary btn-lg" type="submit">Sign in</button>
+      </form>
+      <p class="login-note">Connect Supabase in <code>js/config.js</code> to enable authentication.</p>
+    </div>
+    <div class="login-art">
+      <div class="art-card">
+        <span class="status-dot"></span>
+        <strong>One system. One source of truth.</strong>
+        <span>Keep barangay records organized and easy to retrieve.</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="appView" class="app hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark small">B</div>
+        <div><strong>Barangay BMS</strong><span>Administration Portal</span></div>
+      </div>
+      <nav id="mainNav">
+        <button class="nav-item active" data-view="dashboard"><span>⌂</span> Dashboard</button>
+        <button class="nav-item" data-view="residents"><span>♙</span> Residents</button>
+        <button class="nav-item" data-view="households"><span>⌂</span> Households</button>
+        <button class="nav-item" data-view="businesses"><span>▣</span> Businesses</button>
+        <button class="nav-item" data-view="certificates"><span>▤</span> Certificates</button>
+        <button class="nav-item" data-view="complaints"><span>◉</span> Complaints</button>
+        <button class="nav-item" data-view="reports"><span>▥</span> Reports</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-mini"><div class="avatar">AD</div><div><strong id="userName">Administrator</strong><span id="userRole">Administrator</span></div></div>
+        <button id="logoutBtn" class="logout-btn">↪ Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button id="menuBtn" class="icon-btn mobile-only">☰</button>
+        <div>
+          <p class="eyebrow" id="pageEyebrow">OVERVIEW</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" title="Notifications">♢<i></i></button>
+          <div class="date-chip" id="today"></div>
+        </div>
+      </header>
+
+      <section id="content" class="content"></section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <div class="modal-head"><div><p class="eyebrow" id="modalEyebrow">RECORD</p><h3 id="modalTitle">Add record</h3></div><button id="closeModal" class="icon-btn">×</button></div>
+      <form id="recordForm"></form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
