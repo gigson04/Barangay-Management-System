@@ -1,7 +1,6 @@
 /* =========================================================
    BARANGAY MANAGEMENT SYSTEM
    Main Application
-   Plain JavaScript + Supabase
    ========================================================= */
 
 (() => {
