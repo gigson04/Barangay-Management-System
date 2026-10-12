@@ -1,364 +1,159 @@
-# Barangay Management System
+﻿# Barangay Management System — User Manual
 
-Ang **Barangay Management System (BMS)** ay isang web-based system na ginawa para mas mapadali ang pag-manage ng mga barangay records. Dito pwedeng i-manage ang residents, households, businesses, certificates, complaints, at reports.
+This manual is for the Administrator and authorized barangay personnel who use the Barangay Management System (BMS). It explains how to sign in, manage records, and produce reports.
 
-**Frontend:** HTML, CSS, JavaScript
-**Database & Authentication:** Supabase
+## 1. Open and sign in
 
----
+1. Open the project in Visual Studio Code and start it with **Live Server** by right-clicking `index.html` and choosing **Open with Live Server**. If your barangay has a hosted link, open that link instead.
+2. Sign in with the email and password created for you in Supabase Authentication.
+3. When sign-in succeeds, the **Overview** page opens. The navigation menu only shows modules your assigned role can access.
+4. To leave the system, select the sign-out icon beside your name.
 
-## 1. Paano I-run ang System
+Use your own account. Do not share passwords or leave the system open on an unattended computer.
 
-Para ma-run ang system, kailangan gumamit ng **VS Code** at **Live Server**.
+## 2. Roles and access
 
-### Steps:
+| Role | Available modules |
+| --- | --- |
+| **Administrator** | Overview, Residents, Households, Businesses, Certificates, Complaints, Reports, and User access |
+| **Barangay Secretary** | Overview, Residents, Households, Certificates, and Reports |
+| **Treasurer/Business Personnel** | Overview, Businesses, and Reports |
+| **Barangay Officer** | Overview, Complaints, and Reports |
+| **Pending access** | No records are available until an Administrator assigns a role |
 
-1. Open the project folder sa VS Code.
-2. Kung wala pang Live Server, install muna ang extension.
-3. Hanapin ang `index.html`.
-4. Right-click sa `index.html`.
-5. Piliin ang **Open with Live Server**.
-6. Mag-o-open na ang system sa browser.
+Your role controls the records and actions available to your account. Ask an Administrator if you need access to another module.
 
-**Important:** Huwag i-open directly ang `index.html` gamit ang `file://` dahil may mga functions na hindi gagana nang maayos.
+## 3. Using the workspace
 
----
+### Overview
 
-## 2. Supabase Setup
+Overview shows record totals and summaries that are available to your role. Select a summary card or use the navigation menu to open its module. Administrators and staff who can manage residents can use **Add resident** for a quick start.
 
-Gumagamit ang system ng **Supabase** para sa database at authentication.
+### Search, filters, and record actions
 
-Punta sa:
+- Use the search box in a module to find a record by its displayed details. Use the status menu to narrow the list where available.
+- Select **View / Edit** (or **Edit**) to open a record, update its fields, then choose **Save Record**.
+- Required fields are marked with an asterisk. Correct any validation message before saving.
+- Use **Cancel** or the close button to leave a form without saving.
+- Changes are saved to the shared Supabase database, so authorized users see the same records.
 
-```text
-js/config.js
-```
+### Residents
 
-Hanapin ang:
+1. Open **Residents**, then select **Add Resident**.
+2. Enter the resident number, first and last name, and address. Complete other known details, then select **Save Record**.
+3. Find a resident using search. Choose **View / Edit** to update their record.
+4. Use **Deactivate** when a resident should no longer be treated as active. Use **Restore** to reactivate them later.
 
-```javascript
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-```
+Deactivation preserves the resident record and its links to other barangay records. It does not erase the resident from the database.
 
-Palitan ang values gamit ang sariling **Supabase Project URL** at **Anon/Publishable Key**.
+### Households
 
-### Security Note
+1. Register the household members in **Residents** first.
+2. Open **Households**, select **Add Household**, and enter the household number, address, and required household head. Add the available census details and save.
+3. Select **View profile** on a household row to review its head, address, census details, and members.
+4. In the household profile, choose an active resident and relationship, then select **Add member**. Use **Remove** to unlink a member; the resident’s own record remains.
+5. Edit the household to change its head or other household details.
 
-Huwag ilagay ang **Supabase Service Role Key** sa `config.js` o kahit sa ibang frontend JavaScript file.
+A resident can belong to only one household at a time. The household head must be an active resident. Set a different head before removing the current head from the household.
 
-Ang Service Role Key ay may mataas na access sa database kaya dapat itong manatiling private.
+### Businesses and permits
 
----
+1. Register the business owner as a resident first.
+2. Open **Businesses**, select **Register Business**, choose the owner from the resident list, and enter the business and permit details.
+3. Check the **Permit attention list** for permits that are overdue or due within 30 days.
+4. The list displays a business as **Expired** when its permit expiry date has passed, unless the business is closed. Keep the permit date current.
+5. Use **Close** to close a business record. Closed records remain in the system.
 
-## 3. Pag-create ng Database
+### Certificates
 
-Para ma-setup ang database:
+1. Register the resident first.
+2. Open **Certificates**, select **Issue Certificate**, choose the resident, certificate type, and purpose, then complete the request details.
+3. Set the status to **Issued** when the certificate is issued. The issue date is filled in automatically if it is blank.
+4. Select **Print** on the certificate row to open its print-ready preview. Use the browser’s print dialog to print or save it as a PDF. Allow pop-ups for the site if the preview does not open.
+5. Use **Cancel** to mark a certificate as cancelled. Cancelled records are retained.
 
-1. Login sa Supabase.
-2. Open ang **SQL Editor**.
-3. Buksan ang file na:
+Administrators can set the barangay name, address, and signatory used on the printout in `js/config.js`.
 
-```text
-supabase/schema.sql
-```
+### Complaints
 
-4. Copy lahat ng laman ng file.
-5. Paste sa Supabase SQL Editor.
-6. Click **Run**.
-7. Check kung successful na na-create ang tables.
-
-Ang main tables ng system ay:
-
-* `residents`
-* `households`
-* `household_members`
-* `businesses`
-* `certificates`
-* `complaints`
-* `users`
-
----
-
-## 4. Pag-create ng Login Account
-
-Para magkaroon ng account na gagamitin sa pag-login:
-
-1. Open ang Supabase dashboard.
-2. Punta sa **Authentication**.
-3. Open **Users**.
-4. Click **Add User**.
-5. Create ng email at password.
-6. Gamitin ang account na iyon para mag-login sa system.
-
----
-
-## 5. Project Structure
-
-Ganito ang basic structure ng project:
-
-```text
-barangay-management-system/
-│
-├── index.html
-│
-├── css/
-│   └── style.css
-│
-├── js/
-│   ├── app.js
-│   └── config.js
-│
-├── supabase/
-│   └── schema.sql
-│
-└── README.md
-```
-
----
-
-## 6. Mga Main Features
-
-### Dashboard
-
-Sa Dashboard makikita ang summary ng barangay records, tulad ng:
-
-* Total Residents
-* Total Households
-* Total Businesses
-* Certificates
-* Pending Complaints
-* Resolved Complaints
-* Barangay statistics
-* Quick actions
-
----
-
-### Resident Management
-
-Dito mina-manage ang mga resident records.
-
-Pwedeng:
-
-* Mag-add ng resident
-* Mag-edit ng resident
-* Mag-search ng resident
-* Mag-filter ng records
-* Tingnan ang resident information
-* I-update ang resident status
-
----
-
-### Household Management
-
-Para naman sa household records, may functions para sa:
-
-* Pag-add ng household
-* Household information
-* Household head
-* Household members
-* Household statistics
-
----
-
-### Business Management
-
-Dito naman mina-manage ang mga registered businesses.
-
-Kasama dito ang:
-
-* Business name
-* Business owner
-* Business type
-* Business address
-* Contact information
-* Permit number
-* Permit expiration
-* Business status
-* Search and filter
-
----
-
-### Certificate Management
-
-Pwedeng mag-manage ng iba't ibang barangay certificates tulad ng:
-
-* Barangay Clearance
-* Certificate of Residency
-* Certificate of Indigency
-* Good Moral Certificate
-* No Business Certificate
-* Low Income Certificate
-
-May kasama ring:
-
-* Certificate history
-* Search
-* Print/Preview
-
----
-
-### Complaint Management
-
-Dito nire-record at mina-monitor ang mga complaints.
-
-Kasama sa information ang:
-
-* Complainant
-* Respondent
-* Complaint type
-* Description
-* Location
-* Assigned personnel
-* Status
-* Resolution
-* Date resolved
-
-Ang complaint status ay dumadaan sa:
-
-```text
-FILED
-  ↓
-UNDER REVIEW
-  ↓
-FOR ACTION
-  ↓
-RESOLVED
-  ↓
-CLOSED
-```
-
----
+1. Register the complainant as a resident first.
+2. Open **Complaints**, select **File Complaint**, choose the complainant, and enter the respondent, complaint type, details, and filing date.
+3. Update the assigned personnel and status as the case progresses. Add the resolution when it is resolved or closed; the resolution date is filled in automatically when applicable.
+4. Select **History** on a complaint row to review recorded status, assignment, and resolution changes.
+5. Use **Close** for a closed case and **Reopen** if it needs further action. The complaint and its history are retained.
 
 ### Reports
 
-May iba't ibang reports na pwedeng tingnan at i-print:
+1. Open **Reports** and choose the report for your role.
+2. Enter text in **Search this report** and choose a status, if offered, to narrow the results.
+3. Select **Print / Preview** to open the browser print dialog. From that dialog, choose a printer or **Save as PDF**.
+4. Select **Export CSV** to download the filtered report as a CSV file that can be opened in spreadsheet software.
 
-* Resident Master List
-* Household Report
-* Business Report
-* Certificate Report
-* Complaint Report
+Allow pop-ups for the site if a print preview does not open. Reports may contain personal information; store and share downloaded files only with authorized personnel.
 
-May search at filter functions din para mas madaling hanapin ang kailangan na records.
+## 4. Administrator: manage staff access
 
----
+Administrators can assign roles from **User access**.
 
-## 7. Basic System Flow
+1. First create the staff account in the Supabase project: **Authentication → Users → Add user**. Give the staff member their login details securely.
+2. Sign in to BMS as an Administrator and open **User access**.
+3. Find the staff member and select the appropriate role. New accounts appear with **Pending access** until assigned.
+4. Ask the staff member to sign in again after their role is assigned.
 
-Ganito ang main flow ng system:
+Keep at least one Administrator account. The app prevents an Administrator from removing their own access and prevents changing the last Administrator to another role.
 
-```text
-Login
-  ↓
-Dashboard
-  ↓
-Resident Registration
-  ↓
-Resident Management
-  ↓
-Household Management
-  ↓
-Business Management
-  ↓
-Certificate Management
-  ↓
-Complaint Management
-  ↓
-Reports
-```
+## 5. Troubleshooting
 
----
+| What you see | What to do |
+| --- | --- |
+| **Pending access** | Ask an Administrator to assign your role in **User access**, then sign in again. |
+| **User access is not configured** or a missing `profiles` table error | An Administrator should follow the database setup steps below. |
+| A module is missing from the menu | Your current role does not include that module. Ask an Administrator to review your access. |
+| A resident is missing from a business, certificate, or complaint selector | Confirm the resident exists and is active. |
+| A print preview does not appear | Allow pop-ups for the BMS site and try again. |
+| A save fails | Read the on-screen message, check required fields, and retry. If it persists, send the Administrator the exact message and the affected module. |
 
-## 8. Security
+## 6. Administrator: initial Supabase setup
 
-Gumagamit ang system ng **Supabase Authentication** para sa login.
+These steps are for initial setup or a database that has not yet received the BMS role migration. Do not rerun the schema setup on a database that already contains live data unless you understand the migration being applied.
 
-Para mas secure ang system:
+1. In Supabase, open **SQL Editor**.
+2. If the BMS tables have not yet been created, run the contents of `supabase/schema.sql` first.
+3. Run the complete contents of `supabase/roles.sql` after the schema. This creates user profiles, role policies, and complaint status history, and adds profiles for existing Auth users.
+4. Create or confirm the Administrator’s account in **Authentication → Users**.
+5. If the Administrator role was not assigned by the setup script, run this in SQL Editor, replacing the address with the Administrator’s Supabase Auth email:
 
-* Huwag i-share ang Supabase Service Role Key.
-* Gamitin lang ang public/anon key sa frontend.
-* Gumamit ng secure password.
-* I-set nang maayos ang database permissions.
-* Gumamit ng **Row Level Security (RLS)** kapag ise-set up na ang system for production.
+   ```sql
+   UPDATE public.profiles
+   SET role = 'Administrator'
+   WHERE email = 'admin@barangay.gov.ph';
+   ```
 
----
+6. Confirm the account and role:
 
-## 9. Responsive Design
+   ```sql
+   SELECT email, role
+   FROM public.profiles
+   WHERE email = 'admin@barangay.gov.ph';
+   ```
 
-Ginawa rin ang UI para mag-adjust sa iba't ibang screen sizes.
+The update affects an existing profile only. If it updates zero rows, confirm that the email exists under Supabase **Authentication → Users** and that `roles.sql` completed successfully.
 
-Supported ang:
+## 7. Security and data handling
 
-* Desktop
-* Laptop
-* Tablet
-* Mobile
+- Use an individual account for each staff member and assign only the role they need.
+- Do not share passwords or the Supabase **service role key**. The service role key must never be placed in browser JavaScript.
+- Treat resident records, complaint details, printed documents, and exported reports as confidential. Share them only with authorized personnel and store them securely.
+- Deactivate, close, or cancel records using the available actions rather than trying to delete linked records.
+- Use the Supabase dashboard and the barangay’s approved backup process for database administration and recovery.
 
-May responsive sidebar din para mas madaling gamitin kapag maliit ang screen.
+## 8. Project and configuration reference
 
----
+- `index.html` — application entry point
+- `css/style.css` — layout and visual styles
+- `js/app.js` — application behavior
+- `js/config.js` — Supabase project URL, publishable key, and certificate masthead details
+- `supabase/schema.sql` — core database tables and initial policies
+- `supabase/roles.sql` — staff profiles, role access policies, and complaint history
 
-## 10. Project Status
-
-Sa current version ng project, included na ang main pages at basic structure ng Barangay Management System.
-
-Included na ang:
-
-* Dashboard
-* Resident Management
-* Household Management
-* Business Management
-* Certificate Management
-* Complaint Management
-* Reports
-* Search and Filter
-* Responsive Design
-* Supabase Integration Structure
-* Authentication Structure
-* Demo Data
-
-May ilang parts na kailangan pa ng additional setup at testing bago gamitin sa actual deployment, tulad ng:
-
-* Complete Supabase CRUD testing
-* Role-based access control
-* Complete validation and error handling
-* Certificate generation
-* CSV/Excel export
-* Backup and recovery
-* Unit testing
-* Integration testing
-* System testing
-* Final deployment
-
----
-
-## 11. Technologies Used
-
-### Frontend
-
-* HTML5
-* CSS3
-* JavaScript
-
-### Database / Authentication
-
-* Supabase
-* PostgreSQL
-* Supabase Authentication
-
-### Development Tools
-
-* Visual Studio Code
-* Live Server
-* Supabase SQL Editor
-
----
-
-## 12. Important Note
-
-Ang project na ito ay ginawa bilang isang **Barangay Management System project** para mas maging organized at convenient ang pag-manage ng barangay records.
-
-Before gamitin sa actual barangay, kailangan muna i-test nang maayos ang system, especially ang database, authentication, user permissions, at bawat module.
-
-Para sa school project, recommended din na ma-demo ang complete flow mula **Login → Dashboard → Resident → Household → Business → Certificate → Complaint → Reports** para makita kung paano connected ang bawat part ng system.
+The browser uses the Supabase project URL and public publishable/anon key in `js/config.js`. Never put a service role key in this file. Set `BARANGAY_NAME`, `BARANGAY_ADDRESS`, and `BARANGAY_SIGNATORY` in the same file to customize certificate printouts.
