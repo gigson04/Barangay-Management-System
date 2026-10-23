@@ -11,6 +11,8 @@
      ========================================================= */
 
   const TABLES = [
+    "courses",
+    "enrollments",
     "residents",
     "households",
     "household_members",
@@ -21,15 +23,15 @@
   ];
 
   const ROLE_VIEWS = {
-    Administrator: ["dashboard", "residents", "households", "businesses", "certificates", "complaints", "reports", "users"],
-    "Barangay Secretary": ["dashboard", "residents", "households", "certificates", "reports"],
+    Administrator: ["dashboard", "residents", "courses", "enrollments", "households", "businesses", "certificates", "complaints", "reports", "users"],
+    "Barangay Secretary": ["dashboard", "residents", "courses", "enrollments", "households", "certificates", "reports"],
     "Treasurer/Business Personnel": ["dashboard", "businesses", "reports"],
     "Barangay Officer": ["dashboard", "complaints", "reports"]
   };
 
   const ROLE_TABLES = {
     Administrator: TABLES,
-    "Barangay Secretary": ["residents", "households", "household_members", "certificates"],
+    "Barangay Secretary": ["courses", "enrollments", "residents", "households", "household_members", "certificates"],
     "Treasurer/Business Personnel": ["businesses"],
     "Barangay Officer": ["complaints", "complaint_status_history"]
   };
@@ -57,6 +59,7 @@
     view: "dashboard",
     editing: null,
     householdProfile: null,
+    modalReturnFocus: null,
     role: null,
     currentUserId: null,
     data: createEmptyData()
@@ -85,6 +88,8 @@
 
   function createEmptyData() {
     return {
+      courses: [],
+      enrollments: [],
       residents: [],
       households: [],
       household_members: [],
@@ -101,6 +106,20 @@
      ========================================================= */
 
   const moduleMeta = {
+    courses: {
+      title: "Course Management",
+      eyebrow: "COURSE MANAGEMENT",
+      description: "Create and maintain the course choices available for student enrollment.",
+      action: "Add Course"
+    },
+
+    enrollments: {
+      title: "Enrollment Records",
+      eyebrow: "STUDENT ENROLLMENT",
+      description: "Register students and assign them to an available course.",
+      action: "Add Enrollment"
+    },
+
     residents: {
       title: "Residents",
       eyebrow: "RESIDENT MANAGEMENT",
@@ -155,6 +174,7 @@
       columns: [
         ["resident_number", "Resident No."],
         ["name", "Name"],
+        ["course", "Course"],
         ["age", "Age"],
         ["sex", "Sex"],
         ["civil_status", "Civil Status"],
@@ -165,6 +185,7 @@
 
       fields: [
         ["resident_number", "Resident Number", "text", true],
+        ["course_id", "Course", "select", []],
         ["first_name", "First Name", "text", true],
         ["middle_name", "Middle Name", "text"],
         ["last_name", "Last Name", "text", true],
@@ -215,6 +236,16 @@
           ]
         ]
       ]
+    },
+
+    courses: {
+      columns: [["course_name", "Course"], ["description", "Description"], ["created_at", "Date Added"]],
+      fields: [["course_name", "Course Name", "text", true], ["description", "Description", "textarea"]]
+    },
+
+    enrollments: {
+      columns: [["student_name", "Student Name"], ["college_id", "College ID"], ["course", "Course"], ["enrollment_date", "Enrollment Date"]],
+      fields: [["student_name", "Student Name", "text", true], ["college_id", "College ID", "text", true], ["course_id", "Course", "select", true], ["enrollment_date", "Enrollment Date", "date", true]]
     },
 
     households: {
@@ -587,6 +618,15 @@
     if (key === "status" && type === "businesses") return getBusinessStatus(record);
     if (key === "members" && type === "households") {
       return getHouseholdMemberCount(record.id);
+    }
+    if (key === "course" && type === "residents") {
+      return state.data.courses.find((course) => course.id === record.course_id)?.course_name || "Not assigned";
+    }
+    if (key === "course" && type === "enrollments") {
+      return state.data.courses.find((course) => course.id === record.course_id)?.course_name || "Course unavailable";
+    }
+    if (key === "created_at" && type === "courses") {
+      return record.created_at ? new Date(record.created_at).toLocaleDateString("en-PH") : "—";
     }
     return record[key] ?? "";
   }
@@ -1424,7 +1464,7 @@
               .join("")}
 
             <td>
-              <div class="row-actions">${type === "households" ? `<button class="btn btn-sm" onclick="openHouseholdProfile(${originalIndex})">View profile</button><button class="btn btn-sm" onclick="openModal('${type}', ${originalIndex})">Edit</button>` : `<button class="btn btn-sm" onclick="openModal('${type}', ${originalIndex})">View / Edit</button>${type === "certificates" ? `<button class="btn btn-sm" onclick="printCertificate(${originalIndex})">Print</button>` : ""}${type === "complaints" ? `<button class="btn btn-sm" onclick="openComplaintHistory(${originalIndex})">History</button>` : ""}<button class="btn btn-sm btn-danger" onclick="deleteRecord('${type}', ${originalIndex})" aria-label="Update record status" ${isArchiveDisabled(type, record.status) ? "disabled" : ""}>${getArchiveAction(type, record.status)}</button>`}</div>
+              <div class="row-actions">${type === "households" ? `<button class="btn btn-sm" onclick="openHouseholdProfile(${originalIndex})">View profile</button><button class="btn btn-sm" onclick="openModal('${type}', ${originalIndex})">Edit</button>` : `<button class="btn btn-sm" onclick="openModal('${type}', ${originalIndex})">${["courses", "enrollments"].includes(type) ? "Edit" : "View / Edit"}</button>${type === "certificates" ? `<button class="btn btn-sm" onclick="printCertificate(${originalIndex})">Print</button>` : ""}${type === "complaints" ? `<button class="btn btn-sm" onclick="openComplaintHistory(${originalIndex})">History</button>` : ""}<button class="btn btn-sm btn-danger" onclick="deleteRecord('${type}', ${originalIndex})" aria-label="${["courses", "enrollments"].includes(type) ? "Delete record" : "Update record status"}" ${isArchiveDisabled(type, record.status) ? "disabled" : ""}>${["courses", "enrollments"].includes(type) ? "Delete" : getArchiveAction(type, record.status)}</button>`}</div>
             </td>
           </tr>
         `;
@@ -1494,6 +1534,27 @@
   async function deleteRecord(type, index) {
     const record = state.data[type]?.[index];
     if (!record || isArchiveDisabled(type, record.status)) return;
+    if (type === "courses" || type === "enrollments") {
+      const label = type === "courses" ? record.course_name : record.student_name;
+      const prompt = type === "courses"
+        ? `Delete ${label}? Existing records using this course will keep their records with no course assigned.`
+        : `Delete the enrollment record for ${label}?`;
+      if (!window.confirm(prompt)) return;
+      try {
+        const { error } = await db.from(type).delete().eq("id", record.id);
+        if (error) throw error;
+        state.data[type].splice(index, 1);
+        if (type === "courses") {
+          state.data.residents.forEach((resident) => { if (resident.course_id === record.id) resident.course_id = null; });
+          state.data.enrollments.forEach((enrollment) => { if (enrollment.course_id === record.id) enrollment.course_id = null; });
+        }
+        showToast(type === "courses" ? "Course deleted." : "Enrollment record deleted.");
+        render();
+      } catch (error) {
+        showToast(error.message || "Could not delete course.");
+      }
+      return;
+    }
     const statuses = {
       residents: record.status === "Inactive" ? "Active" : "Inactive",
       businesses: record.status === "Closed" ? "Active" : "Closed",
@@ -1558,7 +1619,7 @@
         </div>
       </div>
 
-      <div class="stats">
+      <div class="reports-grid">
         ${reports
           .map(
             (
@@ -1569,40 +1630,19 @@
               ],
               index
             ) => `
-              <div class="stat">
-                <div class="stat-top">
-                  <span>
-                    REPORT ${index + 1}
-                  </span>
-
-                  <span class="stat-icon">
-                    R
-                  </span>
+              <article class="report-card">
+                <div class="report-card-head">
+                  <span class="report-number">0${index + 1}</span>
+                  <span class="report-kind">${escapeHtml(title)}</span>
                 </div>
-
-                <strong
-                  style="font-size:16px"
-                >
-                  ${title}
-                </strong>
-
-                <small>
-                  ${description}
-                </small>
-
+                <h4>${escapeHtml(title)}</h4>
+                <p class="report-description">${escapeHtml(description)}</p>
                 ${renderReportFilters(type)}
-
-                <button
-                  class="btn btn-sm"
-                  style="margin-top:14px"
-                  onclick="printReport(
-                    '${type}'
-                  )"
-                >
-                  Print / Preview
-                </button>
-                <button class="btn btn-sm" style="margin:14px 0 0 6px" onclick="exportReport('${type}')">Export CSV</button>
-              </div>
+                <div class="report-actions">
+                  <button class="btn btn-primary btn-sm" onclick="printReport('${type}')">Print / preview</button>
+                  <button class="btn btn-sm" onclick="exportReport('${type}')">Export CSV</button>
+                </div>
+              </article>
             `
           )
           .join("")}
@@ -1772,7 +1812,7 @@
     const barangayAddress = window.BARANGAY_ADDRESS || "City / Municipality, Province";
     const signatory = window.BARANGAY_SIGNATORY || "Punong Barangay";
     printWindow.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(certificate.certificate_type)} · ${escapeHtml(certificate.certificate_number)}</title><style>
-      *{box-sizing:border-box}body{margin:0;padding:38px;background:#f0f1ed;color:#28332b;font:16px Georgia,serif}.sheet{position:relative;width:min(790px,100%);min-height:980px;margin:auto;padding:54px 68px;background:#fff;box-shadow:0 10px 40px #1d2c201c}.seal{position:absolute;top:55px;right:62px;display:grid;width:82px;height:82px;place-items:center;border:2px solid #a8b59f;border-radius:50%;color:#6c806c;text-align:center;font:700 9px Arial;letter-spacing:.1em}.header{text-align:center}.header h1{margin:10px 0 3px;font:700 23px Arial;letter-spacing:.06em}.header p{margin:2px;color:#6f786f;font:12px Arial}.rule{height:3px;margin:22px 0 42px;background:#b6a174}.title{text-align:center;font:700 25px Arial;letter-spacing:.13em}.intro{margin-top:46px;text-align:center;font-style:italic}.name{margin:22px 0;text-align:center;font:700 28px Arial;text-transform:uppercase}.body-copy{margin:28px 0;font-size:17px;line-height:2;text-align:justify}.meta{display:flex;justify-content:space-between;margin-top:40px;font:13px Arial}.signature{width:230px;margin:82px 0 0 auto;text-align:center;font:13px Arial}.signature strong{display:block;padding-top:8px;border-top:1px solid #555}.note{margin-top:48px;color:#899187;text-align:center;font:10px Arial}@media print{body{padding:0;background:#fff}.sheet{width:100%;min-height:0;box-shadow:none}.print-button{display:none}}
+      *{box-sizing:border-box}body{margin:0;padding:38px;background:#f4efe7;color:#342d24;font:16px Georgia,serif}.sheet{position:relative;width:min(790px,100%);min-height:980px;margin:auto;padding:54px 68px;background:#fff;box-shadow:0 10px 40px #1d2c201c}.seal{position:absolute;top:55px;right:62px;display:grid;width:82px;height:82px;place-items:center;border:2px solid #c5b397;border-radius:50%;color:#806143;text-align:center;font:700 9px Arial;letter-spacing:.1em}.header{text-align:center}.header h1{margin:10px 0 3px;font:700 23px Arial;letter-spacing:.06em}.header p{margin:2px;color:#6f786f;font:12px Arial}.rule{height:3px;margin:22px 0 42px;background:#a9875e}.title{text-align:center;font:700 25px Arial;letter-spacing:.13em}.intro{margin-top:46px;text-align:center;font-style:italic}.name{margin:22px 0;text-align:center;font:700 28px Arial;text-transform:uppercase}.body-copy{margin:28px 0;font-size:17px;line-height:2;text-align:justify}.meta{display:flex;justify-content:space-between;margin-top:40px;font:13px Arial}.signature{width:230px;margin:82px 0 0 auto;text-align:center;font:13px Arial}.signature strong{display:block;padding-top:8px;border-top:1px solid #555}.note{margin-top:48px;color:#899187;text-align:center;font:10px Arial}@media print{body{padding:0;background:#fff}.sheet{width:100%;min-height:0;box-shadow:none}.print-button{display:none}}
     </style></head><body><main class="sheet"><div class="seal">OFFICIAL<br>SEAL</div><header class="header"><h1>${escapeHtml(barangayName)}</h1><p>Office of the Punong Barangay</p><p>${escapeHtml(barangayAddress)}</p></header><div class="rule"></div><div class="title">${escapeHtml(certificate.certificate_type || "BARANGAY CERTIFICATE")}</div><p class="intro">TO WHOM IT MAY CONCERN:</p><p class="body-copy">This is to certify that <strong>${escapeHtml(getFullName(resident))}</strong>, whose recorded address is ${escapeHtml(resident.address || "within this barangay")}, is listed in the records of this office. This ${escapeHtml(certificate.certificate_type || "certification")} is issued upon request for <strong>${escapeHtml(certificate.purpose || "the stated purpose")}</strong>.</p><p class="body-copy">Issued this ${escapeHtml(certificate.date_issued || new Date().toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }))} at ${escapeHtml(barangayName)}, ${escapeHtml(barangayAddress)}.</p><div class="meta"><span>Certificate No. <strong>${escapeHtml(certificate.certificate_number || "—")}</strong></span><span>Issued by: ${escapeHtml(certificate.issued_by || signatory)}</span></div><div class="signature"><strong>${escapeHtml(signatory)}</strong><span>Punong Barangay</span></div><p class="note">This certificate is issued only for the stated purpose.</p><button class="print-button" onclick="window.print()">Print / Save as PDF</button></main></body></html>`);
     printWindow.document.close();
   }
@@ -1822,6 +1862,9 @@
       type,
       index
     };
+    state.modalReturnFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
     state.householdProfile = null;
 
     const record =
@@ -1875,6 +1918,7 @@
     $("modal").classList.remove(
       "hidden"
     );
+    $("recordForm").querySelector("input, select, textarea, button")?.focus({ preventScroll: true });
   }
 
   function createNewRecord(type) {
@@ -1889,6 +1933,7 @@
     };
     const defaults = {
       residents: { status: "Active" },
+      enrollments: { enrollment_date: localDate },
       businesses: { status: "Active", registration_date: localDate },
       certificates: { status: "Requested", date_requested: localDate },
       complaints: { status: "Pending", date_filed: localDate }
@@ -1932,6 +1977,9 @@
 
     if (key === "household_head") {
       selectOptions = state.data.residents.filter((resident) => resident.status !== "Inactive").map(getFullName);
+    }
+    if (key === "course_id") {
+      selectOptions = state.data.courses.map((course) => ({ value: course.id, label: course.course_name }));
     }
     if (["owner_id", "resident_id", "complainant_id"].includes(key)) {
       selectOptions = state.data.residents
@@ -2030,6 +2078,9 @@
 
     state.editing = null;
     state.householdProfile = null;
+    const returnTarget = state.modalReturnFocus;
+    state.modalReturnFocus = null;
+    if (returnTarget?.isConnected) returnTarget.focus({ preventScroll: true });
   }
 
   async function handleFormSubmit(
@@ -2040,6 +2091,16 @@
     if (!state.editing) {
       return;
     }
+
+    const submitButton = event.submitter || event.target.querySelector('[type="submit"]');
+    if (submitButton?.disabled) return;
+    const originalButtonText = submitButton?.textContent;
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Saving...";
+      submitButton.setAttribute("aria-busy", "true");
+    }
+    event.target.setAttribute("aria-busy", "true");
 
     const {
       type,
@@ -2076,6 +2137,7 @@
       if (["Resolved", "Closed"].includes(record.status) && !record.date_resolved) record.date_resolved = createNewRecordDate();
       if (!["Resolved", "Closed"].includes(record.status)) record.date_resolved = null;
     }
+    if (type === "residents" && record.course_id === "") record.course_id = null;
     if (type === "certificates" && record.status === "Issued" && !record.date_issued) {
       record.date_issued = createNewRecordDate();
     }
@@ -2117,6 +2179,13 @@
         error.message ||
           "Could not save record."
       );
+    } finally {
+      event.target.removeAttribute("aria-busy");
+      if (submitButton?.isConnected) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+        submitButton.removeAttribute("aria-busy");
+      }
     }
   }
 
@@ -2214,6 +2283,8 @@
     index
   ) {
     const uniqueFields = {
+      courses: "course_name",
+      enrollments: "college_id",
       residents:
         "resident_number",
       households:
@@ -2375,6 +2446,8 @@
         renderReports();
     } else if (currentView === "users") {
       $("content").innerHTML = renderUserManagement();
+    } else if (currentView === "courses") {
+      $("content").innerHTML = renderModule(currentView);
     } else {
       $("content").innerHTML =
         renderModule(
@@ -2486,6 +2559,26 @@
       "submit",
       handleFormSubmit
     );
+
+    $("modal")?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+      if (event.key !== "Tab" || $("modal").classList.contains("hidden")) return;
+      const focusable = [...$("modal").querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
 
     $("logoutBtn")?.addEventListener(
       "click",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f5f7f5">
+  <meta name="theme-color" content="#f7f4ef">
   <title>Barangay Management System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,45 +15,58 @@
 
   <main id="loginView" class="login-view">
     <section class="login-panel">
-      <div class="login-brand"><div class="brand-mark">B</div><div><strong>Barangay<span>MS</span></strong><small>COMMUNITY ADMINISTRATION</small></div></div>
-      <div class="login-copy"><p class="eyebrow">WELCOME BACK</p><h1>Your barangay,<br><span>in one place.</span></h1><p>Securely manage residents, households, local businesses, certificates, and community concerns.</p></div>
+      <div class="login-brand"><div class="brand-mark">B</div><div><strong>Barangay<span>MS</span></strong><small>COMMUNITY SERVICES</small></div></div>
+      <div class="login-copy"><p class="eyebrow">STAFF SIGN IN</p><h1>Local service,<br><span>well organized.</span></h1><p>One workspace for authorized barangay personnel to manage community records and services.</p></div>
       <form id="loginForm" class="login-form">
-        <label for="loginEmail">Email address<input id="loginEmail" type="email" placeholder="admin@barangay.gov.ph" autocomplete="username" required></label>
+        <label for="loginEmail">Email address<input id="loginEmail" type="email" placeholder="name@barangay.gov.ph" autocomplete="username" required></label>
         <label for="loginPassword">Password<input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password" required></label>
         <button class="btn btn-primary btn-lg" type="submit">Sign in <span aria-hidden="true">→</span></button>
-        <div class="eyebrow" >admin@barangay.gov.ph | bms0213S</div>
       </form>
-      <div class="login-footer">Build By: Marion Sapon</div>
+      <aside class="demo-access" aria-label="Instructor demo login">
+        <span class="demo-access-label">INSTRUCTOR DEMO ACCOUNT</span>
+        <div><span>Email</span><code>admin@barangay.gov.ph</code></div>
+        <div><span>Password</span><code>bms0213S</code></div>
+      </aside>
+      <p class="login-note">Demo access is provided for course evaluation.</p>
+      <div class="login-footer">Barangay Management System</div>
     </section>
-    <aside class="login-art" aria-label="Barangay management overview">
-      <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
-      <div class="art-content"><span class="art-kicker">A BETTER WAY TO SERVE</span><h2>Clear records.<br>Stronger community.</h2><p>Every important service, connected through one thoughtful workspace.</p>
-        <div class="art-preview"><div class="preview-top"><span>Today at a glance</span><span class="preview-live"><i></i> LIVE</span></div><div class="preview-stats"><div><strong>Residents</strong><b>People</b></div><div><strong>Households</strong><b>Homes</b></div><div><strong>Services</strong><b>Community</b></div></div><div class="preview-line"><span></span></div></div>
+    <aside class="login-art" aria-label="Services available in the workspace">
+      <div class="art-content">
+        <span class="art-kicker">BARANGAY MANAGEMENT SYSTEM</span>
+        <h2>Community records,<br>handled with care.</h2>
+        <p>Keep essential services organized with a clear record of the work your office does every day.</p>
+        <div class="service-list">
+          <div><span class="service-index">01</span><span><strong>Community registry</strong><small>Residents and household profiles</small></span></div>
+          <div><span class="service-index">02</span><span><strong>Local services</strong><small>Business permits and certificates</small></span></div>
+          <div><span class="service-index">03</span><span><strong>Case follow-up</strong><small>Complaints, assignments, and outcomes</small></span></div>
+        </div>
+        <div class="login-aside-note"><span class="login-aside-mark" aria-hidden="true">B</span><span>For authorized barangay personnel</span></div>
       </div>
-      <span class="art-caption">Barangay Management System</span>
     </aside>
   </main>
 
   <div id="appView" class="app hidden">
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand"><div class="brand-mark small">B</div><div><strong>Barangay<span>OS</span></strong><small>ADMINISTRATION</small></div></div>
+      <div class="sidebar-brand"><div class="brand-mark small">B</div><div><strong>Barangay<span>MS</span></strong><small>COMMUNITY SERVICES</small></div></div>
       <p class="nav-label">WORKSPACE</p>
       <nav id="mainNav" aria-label="Main navigation">
-        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">⌂</span> Overview</button>
-        <button class="nav-item" data-view="residents"><span class="nav-icon">◉</span> Residents</button>
-        <button class="nav-item" data-view="households"><span class="nav-icon">⌂</span> Households</button>
-        <button class="nav-item" data-view="businesses"><span class="nav-icon">▣</span> Businesses</button>
-        <button class="nav-item" data-view="certificates"><span class="nav-icon">▤</span> Certificates</button>
-        <button class="nav-item" data-view="complaints"><span class="nav-icon">◷</span> Complaints</button>
-        <button class="nav-item" data-view="reports"><span class="nav-icon">▥</span> Reports</button>
-        <button class="nav-item" data-view="users" hidden><span class="nav-icon">◎</span> User access</button>
+        <button class="nav-item active" data-view="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3.5 10 8.5-7 8.5 7v10a1 1 0 0 1-1 1h-5v-7h-5v7h-5a1 1 0 0 1-1-1z"/></svg></span> Overview</button>
+        <button class="nav-item" data-view="residents"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 20v-1.3a6.2 6.2 0 0 1 12.4 0V20zM16 5.2a3.5 3.5 0 0 1 0 6.8M18.4 14.6a5 5 0 0 1 2.8 4.5v.9h-4"/></svg></span> Residents</button>
+        <button class="nav-item" data-view="courses"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 5.5 12 2l9 3.5v13L12 22l-9-3.5zM3 5.5l9 3.6 9-3.6M12 9v13"/></svg></span> Courses</button>
+        <button class="nav-item" data-view="enrollments"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 9h8M8 13h5M8 17h3"/><circle cx="17" cy="16" r="3"/></svg></span> Enrollment Records</button>
+        <button class="nav-item" data-view="households"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5.5 9v11h13V9M9 20v-6h6v6"/></svg></span> Households</button>
+        <button class="nav-item" data-view="businesses"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V7.5L12 4l8 3.5V21M2.5 21h19M8 10h1m6 0h1M8 14h1m6 0h1M10 21v-4h4v4"/></svg></span> Businesses</button>
+        <button class="nav-item" data-view="certificates"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 12h6m-6 4h6"/></svg></span> Certificates</button>
+        <button class="nav-item" data-view="complaints"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4zM8 9h8m-8 4h5"/></svg></span> Complaints</button>
+        <button class="nav-item" data-view="reports"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V11m8 9V4m8 16v-7M2 20h20"/></svg></span> Reports</button>
+        <button class="nav-item" data-view="users" hidden><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1zm12-13a3 3 0 1 1 2 5.7m1 2.5a5 5 0 0 1 3 4.5V20h-3"/></svg></span> User access</button>
       </nav>
       <a class="sidebar-note" href="README.md" target="_blank" rel="noopener"><div class="sidebar-note-icon">i</div><div><strong>Need a hand?</strong><span>Open the user guide for help.</span></div><span class="guide-arrow" aria-hidden="true">↗</span></a>
-      <div class="sidebar-bottom"><div class="user-mini"><div class="avatar" id="userAvatar">A</div><div class="user-copy"><strong id="userName">Administrator</strong><span id="userRole">Signed in</span></div><button id="logoutBtn" class="logout-btn" title="Sign out" aria-label="Sign out">↗</button></div></div>
+      <div class="sidebar-bottom"><div class="user-mini"><div class="avatar" id="userAvatar">A</div><div class="user-copy"><strong id="userName">Administrator</strong><span id="userRole">Signed in</span></div><button id="logoutBtn" class="logout-btn" title="Sign out" aria-label="Sign out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5m4-4 4-4-4-4m4 4H9"/></svg></button></div></div>
     </aside>
 
     <main class="main">
-      <header class="topbar"><button id="menuBtn" class="icon-btn mobile-only" aria-label="Open navigation">☰</button><div class="topbar-heading"><p class="eyebrow" id="pageEyebrow">YOUR WORKSPACE</p><h2 id="pageTitle">Overview</h2></div><div class="top-actions"><span class="connection-pill"><i></i> Connected</span><div class="top-divider"></div><div class="date-block"><span class="date-label">TODAY</span><strong id="today"></strong></div></div></header>
+      <header class="topbar"><button id="menuBtn" class="icon-btn mobile-only" aria-label="Open navigation">☰</button><div class="topbar-heading"><p class="eyebrow" id="pageEyebrow">YOUR WORKSPACE</p><h2 id="pageTitle">Overview</h2></div><div class="top-actions"><span class="connection-pill">STAFF WORKSPACE</span><div class="top-divider"></div><div class="date-block"><span class="date-label">TODAY</span><strong id="today"></strong></div></div></header>
       <section id="content" class="content"></section>
     </main>
   </div>

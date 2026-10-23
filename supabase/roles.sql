@@ -2,6 +2,29 @@
 -- Create application accounts in Supabase Authentication. New accounts receive
 -- the least-privileged default role; an administrator can change roles below.
 
+-- Course Management exam feature. Safe to run against an existing BMS database.
+create table if not exists public.courses (
+  id uuid primary key default gen_random_uuid(),
+  course_name text not null unique,
+  description text,
+  created_at timestamptz not null default now()
+);
+alter table public.courses add column if not exists description text;
+alter table public.residents add column if not exists course_id uuid
+  references public.courses(id) on delete set null;
+create table if not exists public.enrollments (
+  id uuid primary key default gen_random_uuid(),
+  student_name text not null,
+  college_id text not null unique,
+  course_id uuid references public.courses(id) on delete set null,
+  enrollment_date date not null default current_date,
+  created_at timestamptz not null default now()
+);
+alter table public.courses enable row level security;
+alter table public.enrollments enable row level security;
+grant select, insert, update, delete on public.courses to authenticated;
+grant select, insert, update, delete on public.enrollments to authenticated;
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
@@ -173,6 +196,8 @@ create policy "profiles_admin_manage" on public.profiles
 -- role-specific access. RLS policies are permissive, so leaving them in place
 -- would override the restrictions below.
 drop policy if exists "authenticated residents access" on public.residents;
+drop policy if exists "authenticated courses access" on public.courses;
+drop policy if exists "authenticated enrollments access" on public.enrollments;
 drop policy if exists "authenticated households access" on public.households;
 drop policy if exists "authenticated household members access" on public.household_members;
 drop policy if exists "authenticated businesses access" on public.businesses;
@@ -180,6 +205,8 @@ drop policy if exists "authenticated certificates access" on public.certificates
 drop policy if exists "authenticated complaints access" on public.complaints;
 
 drop policy if exists "resident staff access" on public.residents;
+drop policy if exists "course staff access" on public.courses;
+drop policy if exists "enrollment staff access" on public.enrollments;
 drop policy if exists "household staff access" on public.households;
 drop policy if exists "household member staff access" on public.household_members;
 drop policy if exists "business staff access" on public.businesses;
@@ -187,6 +214,16 @@ drop policy if exists "certificate staff access" on public.certificates;
 drop policy if exists "complaint staff access" on public.complaints;
 
 create policy "resident staff access" on public.residents
+  for all to authenticated
+  using (public.current_user_role() in ('Administrator', 'Barangay Secretary'))
+  with check (public.current_user_role() in ('Administrator', 'Barangay Secretary'));
+
+create policy "course staff access" on public.courses
+  for all to authenticated
+  using (public.current_user_role() in ('Administrator', 'Barangay Secretary'))
+  with check (public.current_user_role() in ('Administrator', 'Barangay Secretary'));
+
+create policy "enrollment staff access" on public.enrollments
   for all to authenticated
   using (public.current_user_role() in ('Administrator', 'Barangay Secretary'))
   with check (public.current_user_role() in ('Administrator', 'Barangay Secretary'));

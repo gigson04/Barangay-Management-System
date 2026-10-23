@@ -2,9 +2,26 @@
 -- Run this in Supabase SQL Editor.
 create extension if not exists "pgcrypto";
 
+create table if not exists courses (
+ id uuid primary key default gen_random_uuid(),
+ course_name text not null unique,
+ description text,
+ created_at timestamptz not null default now()
+);
+
+create table if not exists enrollments (
+ id uuid primary key default gen_random_uuid(),
+ student_name text not null,
+ college_id text not null unique,
+ course_id uuid references courses(id) on delete set null,
+ enrollment_date date not null default current_date,
+ created_at timestamptz not null default now()
+);
+
 create table if not exists residents (
  id uuid primary key default gen_random_uuid(),
  resident_number text unique not null,
+ course_id uuid references courses(id) on delete set null,
  first_name text not null,
  middle_name text,
  last_name text not null,
@@ -96,6 +113,8 @@ create table if not exists complaints (
 
 -- For the classroom/demo frontend, enable access to authenticated users.
 alter table residents enable row level security;
+alter table courses enable row level security;
+alter table enrollments enable row level security;
 alter table households enable row level security;
 alter table household_members enable row level security;
 alter table businesses enable row level security;
@@ -103,6 +122,8 @@ alter table certificates enable row level security;
 alter table complaints enable row level security;
 
 create policy "authenticated residents access" on residents for all to authenticated using (true) with check (true);
+create policy "authenticated courses access" on courses for all to authenticated using (true) with check (true);
+create policy "authenticated enrollments access" on enrollments for all to authenticated using (true) with check (true);
 create policy "authenticated households access" on households for all to authenticated using (true) with check (true);
 create policy "authenticated household members access" on household_members for all to authenticated using (true) with check (true);
 create policy "authenticated businesses access" on businesses for all to authenticated using (true) with check (true);

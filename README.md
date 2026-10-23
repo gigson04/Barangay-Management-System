@@ -15,8 +15,8 @@ Use your own account. Do not share passwords or leave the system open on an unat
 
 | Role | Available modules |
 | --- | --- |
-| **Administrator** | Overview, Residents, Households, Businesses, Certificates, Complaints, Reports, and User access |
-| **Barangay Secretary** | Overview, Residents, Households, Certificates, and Reports |
+| **Administrator** | Overview, Residents, Courses, Enrollment Records, Households, Businesses, Certificates, Complaints, Reports, and User access |
+| **Barangay Secretary** | Overview, Residents, Courses, Enrollment Records, Households, Certificates, and Reports |
 | **Treasurer/Business Personnel** | Overview, Businesses, and Reports |
 | **Barangay Officer** | Overview, Complaints, and Reports |
 | **Pending access** | No records are available until an Administrator assigns a role |
@@ -45,6 +45,10 @@ Overview shows record totals and summaries that are available to your role. Sele
 4. Use **Deactivate** when a resident should no longer be treated as active. Use **Restore** to reactivate them later.
 
 Deactivation preserves the resident record and its links to other barangay records. It does not erase the resident from the database.
+
+### Course Management and Enrollment Records (exam feature)
+
+Administrators and Barangay Secretaries can open **Courses** to add, edit, search, and delete course choices. Add courses first, then open **Enrollment Records** and choose **Add Enrollment**. Enter the student name and unique college ID, select a course, and confirm the enrollment date. Enrollment records can be edited, searched, or deleted. Deleting a course keeps enrollment records and clears their course assignment. The optional course selector on resident records is retained separately.
 
 ### Households
 
@@ -120,6 +124,8 @@ These steps are for initial setup or a database that has not yet received the BM
 1. In Supabase, open **SQL Editor**.
 2. If the BMS tables have not yet been created, run the contents of `supabase/schema.sql` first.
 3. Run the complete contents of `supabase/roles.sql` after the schema. This creates user profiles, role policies, and complaint status history, and adds profiles for existing Auth users.
+
+   The current `roles.sql` also creates the exam Courses and Enrollment Records tables and adds the optional course link to resident records. If you already ran an earlier version of `roles.sql`, run the updated file once to apply the migration and policies.
 4. Create or confirm the Administrator’s account in **Authentication → Users**.
 5. If the Administrator role was not assigned by the setup script, run this in SQL Editor, replacing the address with the Administrator’s Supabase Auth email:
 
@@ -155,5 +161,7 @@ The update affects an existing profile only. If it updates zero rows, confirm th
 - `js/config.js` — Supabase project URL, publishable key, and certificate masthead details
 - `supabase/schema.sql` — core database tables and initial policies
 - `supabase/roles.sql` — staff profiles, role access policies, and complaint history
+
+The exam feature is kept in the Courses and Enrollment Records navigation items, their table/form configuration in `js/app.js`, and database setup in `supabase/schema.sql` and `supabase/roles.sql`. Remove those pieces when the exam feature is no longer needed.
 
 The browser uses the Supabase project URL and public publishable/anon key in `js/config.js`. Never put a service role key in this file. Set `BARANGAY_NAME`, `BARANGAY_ADDRESS`, and `BARANGAY_SIGNATORY` in the same file to customize certificate printouts.
