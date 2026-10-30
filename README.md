@@ -1,5 +1,5 @@
 ﻿# Barangay Management System — User Manual
-
+ 
 This manual is for the Administrator and authorized barangay personnel who use the Barangay Management System (BMS). It explains how to sign in, manage records, and produce reports.
 
 ## 1. Open and sign in
